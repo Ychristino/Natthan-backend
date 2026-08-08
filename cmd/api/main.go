@@ -16,6 +16,7 @@ import (
 	"github.com/natthan/api/internal/core/config"
 	"github.com/natthan/api/internal/core/database"
 	"github.com/natthan/api/internal/middleware"
+	"github.com/natthan/api/internal/standalone"
 )
 
 func main() {
@@ -33,9 +34,12 @@ func main() {
 	}
 	defer db.Close()
 
-	cacheClient, err := cache.New(cfg.RedisURL)
-	if err != nil {
-		log.Fatalf("redis: %v", err)
+	var cacheClient cache.Store
+	if c, err := cache.New(cfg.RedisURL); err != nil {
+		log.Printf("redis: %v; falling back to in-memory cache", err)
+		cacheClient = standalone.NewMemCache()
+	} else {
+		cacheClient = c
 	}
 
 	_ = cacheClient // será usado pelos services após definição do banco
@@ -55,7 +59,6 @@ func main() {
 
 	registerRoutes(app, ctrl, cfg.JWTSecret)
 
-	
 	// ─── Graceful shutdown ────────────────────────────────────────────────────
 
 	quit := make(chan os.Signal, 1)
