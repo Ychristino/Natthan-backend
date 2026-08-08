@@ -10,6 +10,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
 
 	"github.com/natthan/api/internal/core/cache"
@@ -19,10 +22,36 @@ import (
 	"github.com/natthan/api/internal/standalone"
 )
 
+func runMigrations(databaseURL string) error {
+	migrationsPath := "file://db/migrations"
+	if _, err := os.Stat("db/migrations"); err != nil {
+		if _, err2 := os.Stat("/migrations"); err2 == nil {
+			migrationsPath = "file:///migrations"
+		}
+	}
+
+	m, err := migrate.New(migrationsPath, databaseURL)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_, _ = m.Close()
+	}()
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+	return nil
+}
+
 func main() {
 	_ = godotenv.Load()
 
 	cfg := config.Load()
+
+	if err := runMigrations(cfg.DatabaseURL); err != nil {
+		log.Fatalf("migrations: %v", err)
+	}
 
 	ctx := context.Background()
 
