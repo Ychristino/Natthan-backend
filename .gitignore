@@ -1,0 +1,38 @@
+# Binários e Arquivos Compilados
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+
+# Arquivos de Configuração e Segredos (Evita vazar credenciais)
+.env
+.env.*
+!.env.example
+
+# Dependências (Se você usa a pasta vendor, opcional tirar da lista)
+vendor/
+
+# Ferramentas de Desenvolvimento e Cobertura de Testes
+.golangci.yaml
+.golangci.yml
+coverage.txt
+coverage.out
+c.out
+
+# IDEs e Editores de Código
+# VS Code
+.vscode/
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (GoLand, IntelliJ)
+.idea/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db

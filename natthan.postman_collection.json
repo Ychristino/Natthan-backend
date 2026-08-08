@@ -1,0 +1,838 @@
+{
+  "info": {
+    "name": "Natthan API",
+    "_postman_id": "natthan-api-v3",
+    "description": "Natthan backend — all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) {",
+                  "  pm.collectionVariables.set('token', r.access_token);",
+                  "  pm.collectionVariables.set('refreshToken', r.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@natthan.com\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"joao.silva\",\n  \"email\": \"joao@example.com\",\n  \"password\": \"secret123\",\n  \"full_name\": \"João Silva\",\n  \"birth_date\": \"1990-05-20\",\n  \"nationality_id\": \"<uuid>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.access_token) {",
+                  "  pm.collectionVariables.set('token', r.access_token);",
+                  "  pm.collectionVariables.set('refreshToken', r.refresh_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "name", "value": "", "disabled": true, "description": "filter by name" },
+                { "key": "role", "value": "", "disabled": true, "description": "admin | employee | visitor" },
+                { "key": "active", "value": "true", "disabled": true, "description": "true | false" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/:id", "host": ["{{baseUrl}}"], "path": ["users", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Add Role",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"employee\",\n  \"expiration_date\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/users/:id/roles", "host": ["{{baseUrl}}"], "path": ["users", ":id", "roles"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Remove Role",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/users/:id/roles/:role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", ":id", "roles", ":role"],
+              "variable": [
+                { "key": "id", "value": "" },
+                { "key": "role", "value": "employee" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/users/:id", "host": ["{{baseUrl}}"], "path": ["users", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Reactivate User",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/users/:id/activate", "host": ["{{baseUrl}}"], "path": ["users", ":id", "activate"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Persons",
+      "item": [
+        {
+          "name": "Lookup by Document",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/persons/lookup?document=",
+              "host": ["{{baseUrl}}"],
+              "path": ["persons", "lookup"],
+              "query": [{ "key": "document", "value": "" }]
+            }
+          }
+        },
+        {
+          "name": "List Persons",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/persons?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["persons"],
+              "query": [
+                { "key": "name", "value": "", "disabled": true, "description": "filter by name" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Person",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/persons/:id", "host": ["{{baseUrl}}"], "path": ["persons", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Person",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Maria Souza\",\n  \"birth_date\": \"1985-03-15\",\n  \"nationality_id\": \"<uuid>\",\n  \"documents\": [\n    { \"type\": \"cpf\", \"value\": \"123.456.789-00\" },\n    { \"type\": \"rg\",  \"value\": \"12.345.678-9\" }\n  ],\n  \"addresses\": [\n    {\n      \"address_type\": \"residencial\",\n      \"street\": \"Rua das Flores\",\n      \"number\": \"42\",\n      \"complement\": \"Apto 3\",\n      \"neighborhood\": \"Centro\",\n      \"zip_code\": \"01001-000\",\n      \"city_id\": \"<uuid>\"\n    }\n  ],\n  \"contacts\": [\n    { \"type\": \"email\",    \"value\": \"maria@example.com\" },\n    { \"type\": \"whatsapp\", \"value\": \"+5511999999999\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/persons", "host": ["{{baseUrl}}"], "path": ["persons"] }
+          }
+        },
+        {
+          "name": "Update Person",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Maria Souza Atualizada\",\n  \"nationality_id\": \"<uuid>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/persons/:id", "host": ["{{baseUrl}}"], "path": ["persons", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Person",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/persons/:id", "host": ["{{baseUrl}}"], "path": ["persons", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/documents?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["documents"],
+              "query": [
+                { "key": "person_id", "value": "", "disabled": true, "description": "filter by person UUID" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Document",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/documents/:id", "host": ["{{baseUrl}}"], "path": ["documents", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Document",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": \"<uuid>\",\n  \"type\": \"cpf\",\n  \"value\": \"123.456.789-00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/documents", "host": ["{{baseUrl}}"], "path": ["documents"] }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/documents/:id", "host": ["{{baseUrl}}"], "path": ["documents", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "List Addresses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/addresses?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["addresses"],
+              "query": [
+                { "key": "person_id", "value": "", "disabled": true, "description": "filter by person UUID" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Address",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Address",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": \"<uuid>\",\n  \"address_type\": \"residencial\",\n  \"street\": \"Rua das Flores\",\n  \"number\": \"42\",\n  \"complement\": \"Apto 3\",\n  \"neighborhood\": \"Centro\",\n  \"zip_code\": \"01001-000\",\n  \"city_id\": \"<uuid>\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/addresses", "host": ["{{baseUrl}}"], "path": ["addresses"] }
+          }
+        },
+        {
+          "name": "Update Address",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"street\": \"Avenida Paulista\",\n  \"number\": \"1000\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Address",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/addresses/:id", "host": ["{{baseUrl}}"], "path": ["addresses", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/contacts?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["contacts"],
+              "query": [
+                { "key": "person_id", "value": "", "disabled": true, "description": "filter by person UUID" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Contact",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/contacts/:id", "host": ["{{baseUrl}}"], "path": ["contacts", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Contact",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"person_id\": \"<uuid>\",\n  \"type\": \"email\",\n  \"value\": \"contato@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/contacts", "host": ["{{baseUrl}}"], "path": ["contacts"] }
+          }
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/contacts/:id", "host": ["{{baseUrl}}"], "path": ["contacts", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "name", "value": "", "disabled": true, "description": "filter by name" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/products/:id", "host": ["{{baseUrl}}"], "path": ["products", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_code\": \"PROD-001\",\n  \"name\": \"Filtro de Óleo\",\n  \"description\": \"Filtro de óleo para motor 1.0\",\n  \"purchase_price\": 12.50,\n  \"sale_price\": 25.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/products", "host": ["{{baseUrl}}"], "path": ["products"] }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sale_price\": 28.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/products/:id", "host": ["{{baseUrl}}"], "path": ["products", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/products/:id", "host": ["{{baseUrl}}"], "path": ["products", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "List Services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/services?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"],
+              "query": [
+                { "key": "name", "value": "", "disabled": true, "description": "filter by name" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/services/:id", "host": ["{{baseUrl}}"], "path": ["services", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_code\": \"SVC-001\",\n  \"name\": \"Troca de Óleo\",\n  \"description\": \"Troca de óleo e filtro\",\n  \"price\": 80.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/services", "host": ["{{baseUrl}}"], "path": ["services"] }
+          }
+        },
+        {
+          "name": "Update Service",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 90.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/services/:id", "host": ["{{baseUrl}}"], "path": ["services", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Service",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/services/:id", "host": ["{{baseUrl}}"], "path": ["services", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Orders",
+      "item": [
+        {
+          "name": "List Service Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/serviceOrders?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["serviceOrders"],
+              "query": [
+                { "key": "search",    "value": "", "disabled": true, "description": "search by client/employee name" },
+                { "key": "status",    "value": "", "disabled": true, "description": "open | in_progress | completed | cancelled" },
+                { "key": "date_from", "value": "", "disabled": true, "description": "YYYY-MM-DD" },
+                { "key": "date_to",   "value": "", "disabled": true, "description": "YYYY-MM-DD" },
+                { "key": "page",      "value": "1" },
+                { "key": "limit",     "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Service Order",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/serviceOrders/:id", "host": ["{{baseUrl}}"], "path": ["serviceOrders", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Create Service Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"<uuid>\",\n  \"employee_id\": \"<uuid>\",\n  \"status\": \"open\",\n  \"notes\": \"Veículo com barulho no motor\",\n  \"products\": [\n    { \"product_id\": \"<uuid>\", \"quantity\": 1, \"unit_price\": 25.00 }\n  ],\n  \"services\": [\n    { \"service_id\": \"<uuid>\", \"price_applied\": 80.00, \"notes\": \"\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/serviceOrders", "host": ["{{baseUrl}}"], "path": ["serviceOrders"] }
+          }
+        },
+        {
+          "name": "Update Service Order",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"completed\",\n  \"exit_date\": \"2026-04-20T18:00:00Z\",\n  \"notes\": \"Serviço concluído\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/serviceOrders/:id", "host": ["{{baseUrl}}"], "path": ["serviceOrders", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Delete Service Order",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/serviceOrders/:id", "host": ["{{baseUrl}}"], "path": ["serviceOrders", ":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Add Product to Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"<uuid>\",\n  \"quantity\": 2,\n  \"unit_price\": 25.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/serviceOrders/:id/products", "host": ["{{baseUrl}}"], "path": ["serviceOrders", ":id", "products"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Remove Product from Order",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/serviceOrders/:id/products/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": ["serviceOrders", ":id", "products", ":itemId"],
+              "variable": [
+                { "key": "id",     "value": "" },
+                { "key": "itemId", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Service to Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_id\": \"<uuid>\",\n  \"price_applied\": 80.00,\n  \"notes\": \"\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/serviceOrders/:id/services", "host": ["{{baseUrl}}"], "path": ["serviceOrders", ":id", "services"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Remove Service from Order",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/serviceOrders/:id/services/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": ["serviceOrders", ":id", "services", ":itemId"],
+              "variable": [
+                { "key": "id",     "value": "" },
+                { "key": "itemId", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Localization",
+      "item": [
+        {
+          "name": "Countries",
+          "item": [
+            {
+              "name": "List Countries",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/countries?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["countries"],
+                  "query": [
+                    { "key": "page",  "value": "1" },
+                    { "key": "limit", "value": "20" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Country",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/countries/:id", "host": ["{{baseUrl}}"], "path": ["countries", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            },
+            {
+              "name": "Create Country",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Brasil\",\n  \"code\": \"BR\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/countries", "host": ["{{baseUrl}}"], "path": ["countries"] }
+              }
+            },
+            {
+              "name": "Update Country",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Brasil\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/countries/:id", "host": ["{{baseUrl}}"], "path": ["countries", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "States",
+          "item": [
+            {
+              "name": "List States",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/states?page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["states"],
+                  "query": [
+                    { "key": "page",  "value": "1" },
+                    { "key": "limit", "value": "50" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get State",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/states/:id", "host": ["{{baseUrl}}"], "path": ["states", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            },
+            {
+              "name": "Create State",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"São Paulo\",\n  \"code\": \"SP\",\n  \"country_id\": \"<uuid>\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/states", "host": ["{{baseUrl}}"], "path": ["states"] }
+              }
+            },
+            {
+              "name": "Update State",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"São Paulo\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/states/:id", "host": ["{{baseUrl}}"], "path": ["states", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cities",
+          "item": [
+            {
+              "name": "List Cities",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/cities?page=1&limit=50",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["cities"],
+                  "query": [
+                    { "key": "page",  "value": "1" },
+                    { "key": "limit", "value": "50" }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get City",
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "url": { "raw": "{{baseUrl}}/cities/:id", "host": ["{{baseUrl}}"], "path": ["cities", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            },
+            {
+              "name": "Create City",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"São Paulo\",\n  \"state_id\": \"<uuid>\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/cities", "host": ["{{baseUrl}}"], "path": ["cities"] }
+              }
+            },
+            {
+              "name": "Update City",
+              "request": {
+                "method": "PATCH",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"São Paulo\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": { "raw": "{{baseUrl}}/cities/:id", "host": ["{{baseUrl}}"], "path": ["cities", ":id"], "variable": [{ "key": "id", "value": "" }] }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

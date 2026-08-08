@@ -1,0 +1,24 @@
+# --- Build stage ---
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+
+# instala dependências primeiro (cache de layer)
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# compila binário estático
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/server ./cmd/api
+
+# --- Runtime stage ---
+# imagem mínima — apenas o binário
+FROM scratch
+
+COPY --from=builder /app/server /server
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+EXPOSE 8080
+
+ENTRYPOINT ["/server"]
