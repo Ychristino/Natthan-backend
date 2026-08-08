@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,12 +25,25 @@ import (
 )
 
 func runMigrations(databaseURL string) error {
-	migrationsPath := "file://db/migrations"
-	if _, err := os.Stat("db/migrations"); err != nil {
-		if _, err2 := os.Stat("/migrations"); err2 == nil {
-			migrationsPath = "file:///migrations"
+	migrationsDir := ""
+
+	if absPath, err := filepath.Abs("db/migrations"); err == nil {
+		if info, err2 := os.Stat(absPath); err2 == nil && info.IsDir() {
+			migrationsDir = absPath
 		}
 	}
+
+	if migrationsDir == "" {
+		if info, err := os.Stat("/migrations"); err == nil && info.IsDir() {
+			migrationsDir = "/migrations"
+		}
+	}
+
+	if migrationsDir == "" {
+		return fmt.Errorf("migrations directory not found")
+	}
+
+	migrationsPath := "file://" + migrationsDir
 
 	m, err := migrate.New(migrationsPath, databaseURL)
 	if err != nil {
