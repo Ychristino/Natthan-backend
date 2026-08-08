@@ -25,22 +25,34 @@ import (
 )
 
 func runMigrations(databaseURL string) error {
-	migrationsDir := ""
+	candidates := []string{}
 
-	if absPath, err := filepath.Abs("db/migrations"); err == nil {
-		if info, err2 := os.Stat(absPath); err2 == nil && info.IsDir() {
-			migrationsDir = absPath
+	if exe, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exe)
+		candidates = append(candidates,
+			filepath.Join(exeDir, "migrations"),
+			filepath.Join(exeDir, "db", "migrations"),
+		)
+	}
+
+	candidates = append(candidates,
+		"./migrations",
+		"./db/migrations",
+		"/migrations",
+		"/app/db/migrations",
+	)
+
+	var migrationsDir string
+	for _, candidate := range candidates {
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			migrationsDir = candidate
+			break
 		}
 	}
 
 	if migrationsDir == "" {
-		if info, err := os.Stat("/migrations"); err == nil && info.IsDir() {
-			migrationsDir = "/migrations"
-		}
-	}
-
-	if migrationsDir == "" {
-		return fmt.Errorf("migrations directory not found")
+		cwd, _ := os.Getwd()
+		return fmt.Errorf("migrations directory not found; cwd=%s, candidates=%v", cwd, candidates)
 	}
 
 	migrationsPath := "file://" + migrationsDir

@@ -18,6 +18,7 @@ FROM scratch
 
 COPY --from=builder /app/server /server
 COPY --from=builder /app/db/migrations /migrations
+COPY --from=builder /app/db/migrations /app/db/migrations
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 EXPOSE 8080
